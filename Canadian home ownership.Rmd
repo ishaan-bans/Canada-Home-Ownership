@@ -1,0 +1,252 @@
+---
+title: "Canadians prefer renting over buying homes in 2017"
+subtitle: "A study on the various factors which can influence home ownership using Canadian GSS 2017 data" 
+author:
+  - Ishaan Bansal 
+thanks: "Code and data are available at: https://github.com/ishaan-bans/Canada-Home-Ownership.git"
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "This paper attempts to find the correlation between various demographic factors and home ownership in Canada in 2017. The factors taken into consideration are - Gender, Marriage, Children, Religion, income and citizenship status. Based on the findings, it is evident that regardless of family dyanmics and demographic factors, Canadians prefer to rent as opposed to purchase houses."
+output:
+  bookdown::pdf_document2 
+toc: TRUE
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+if (!require("tidyverse")) install.packages("tidyverse")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("magrittr")) install.packages("magrittr")
+if (!require("janitor")) install.packages("janitor")
+if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("knitr")) install.packages("knitr")
+if (!require("patchwork")) install.packages("patchwork")
+if (!require("here")) install.packages("here")
+if (!require("bookdown")) install.packages("bookdown")
+
+library(here)
+library(bookdown)
+library(tidyverse)
+library(dplyr)
+library(janitor)
+library(ggplot2)
+library(knitr)
+library(patchwork)
+library(magrittr)
+```
+
+\newpage
+
+# Introduction
+The 21st Century has changed the way in which people view home ownership. While earlier it was seen as a rite of passage, it now viewed as an unnecessary expenditure. Home ownership is no longer seen as a necessity and people are growing more comfortable simply renting houses. The General Society Survey conducted in Canada provides data which proves this conclusion. 
+
+The 2017 General Society Survey is a key indicator of the Average Canadian and their preferences. The data gathered through the survey was indicative of the above mentioned change in mindset. Regardless of demographics, income, and family size, Canadians are choosing to rent homes as opposed to buy homes. The goal of this paper is to analyze this data and discuss the individual factors which could be taken into account when purchasing a home, and use GSS data to assess whether there is a correlation between these factors and home ownership. 
+
+Gender is an important factor to take into account. The 21st Century has completely abolished the stereotypical notions of gender roles - however, is this also the case when it comes to home ownership? Out of the sample of Canadians that own homes, is there a particular gender that is in the majority. 
+
+Age is an additional important factor to consider. We can show that the mindset of people regarding home ownership is changing if we see that older people are more likely to purchase homes as opposed to younger people. However, this pattern could also be attributed to income. Older people have been in the workforce for longer and are likely to be recieving higher income and have larger savings, hence, allowing them to purchase homes. 
+
+Finally, family size is important to consider. After people have kids, home ownership is a popular choice as it provides a sense of security and consistency which is important for children and their psychological growth. 
+```{r 1, echo=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+# Loading Clean data 
+
+
+data = read.csv("gss.csv")
+
+# Grouping ages
+data <- 
+  data %>%
+  mutate(age_group = 
+           case_when(age < 20 ~ "<20",
+                     age < 30 ~ "20-29",
+                     age < 40 ~ "30-39",
+                     age < 50 ~ "40-49",
+                     age < 60 ~ "50-59",
+                     age < 75 ~ "60-75"
+           ),
+         age_group = factor(age_group,
+                            levels = c("<20",
+                                       "20-29",
+                                       "30-39",
+                                       "40-49",
+                                       "50-59",
+                                       "60-75"
+                            )
+         )
+  )
+
+# Formatting income variable for ease of analysis
+data$income_respondent[(data$income_respondent) == "Less than $25,000"] <- "<25k"
+data$income_respondent[(data$income_respondent) == "$25,000 to $49,999"] <- "<50k"
+data$income_respondent[(data$income_respondent) == "$50,000 to $74,999"] <- "<75k"
+data$income_respondent[(data$income_respondent) == "$75,000 to $99,999"] <- "<100k"
+data$income_respondent[(data$income_respondent) == "$100,000 to $ 124,999"] <- "<125k"
+data$income_respondent[(data$income_respondent) == "$125,000 and more"] <- ">=125k"
+
+```
+
+# Data
+## Statistical Software and Dataset
+This report analyses data collected by the 2017 Canadian General Societal Survey to analyze different factors affecting Canadian's decisions to purchase homes. Statistical analysis was done using `R statistical programming language` [@R]. Along with the base features that `R` includes, this analysis used several packages that can be downloaded and used by any user of the software. The cleaned data set was then analyzed using `dplyr` [@dplyr] and visualized using `ggplot2` [@ggplot2]. The final report was created in the *R Markdown* format and formatted using `knitr` [@knitr] and `bookdown` [@bookdown]. 
+
+## Information about the 2017 Canadian GSS
+Conducted in 2017, this survey aimed to create a census of the Canadian population by sampling from residential mailing addresses in the population. Sample data collected from 43,000 people, 15 years of age and older, across 10 provinces was used to create a dataset containing demographic information of Canadians. 
+
+The purpose of this data is to periodically monitor changes in Canadian families across the following headings – conjugal and parental hearings, family origins, children’s home leaving, fertility intentions and various other socioeconomic characteristics. 
+
+## Methodology
+This paper looks at various variables and creates bar charts to visualize their effect on home ownership in Canada. This allows for an analysis into what factors are taken into consideration when contemplating on purchasing a home. The variables used in the analysis are as follows: -
+- Marital Status
+- Age
+- Income
+- Household Size
+- Population Center
+
+\newpage
+# Results
+The results section is broken down into different sections based on the various factors believed to be most significant when analyzing home ownership in Canada. While initially we predicted different patterns for both males and females, the results and figures created indicated that gender plays no significant role in home ownership in Canada. 
+
+## Marital Status and Home Ownership
+A similar relationship is seen for both Males and Females when analyzing the effect of marital status on home ownership. Both genders follow a similar pattern of home ownership. 
+
+(Figure \@ref(fig:3)) indicates that married males and females are most likely to own homes. The results indicate that 85% of married males and females in Canada own their homes as opposed to rent homes. 
+
+Single males and females are equally likely to either own or rent homes according to the data. The graph shows a similar pattern for both males and females with equal distribution of observations spread between owning and renting homes in Canada. 
+
+Finally, separated males and females are least likely to own their homes in Canada. The graph shows a similar pattern for both males and females with a minor proportion of the sample owning their homes. 
+
+## Age and Home Ownership
+A similar relationship is seen for both males and females when analyzing the effect of age groups on home ownership. When visualizing this data, age related data was grouped into categories for ease of analysis. The pattern shown by (Figure \@ref(fig:4)) is as follows - older people are most likely to own their homes and as the sample gets younger, likelihood for home ownership reduces. 
+
+In the 60-75 age bracket, 75% of individuals indicated that they own their homes while 25% of individuals indicated that they rent their homes. (Figure \@ref(fig:4)) shows a similar relationship for both males and females. 
+
+In addition, an interesting result was that for the bracket made up of individuals under the age of 20, 100% of both male and female respondents indicated that they own their homes. This result will be further analyzed in the discussion section. 
+
+Between the above mentioned 2 age brackets, (Figure \@ref(fig:4)) shows that as age increases the percentage of individuals owning their homes as opposed to renting in Canada increases. Similar patterns are seen for both males and females.
+
+## Income and home ownership
+Similar to previous results, males and females follow a similar pattern when comparing home ownership in Canada. Higher incomes groups are likely to own their homes as opposed to rent, 95% of individuals surveys earning above $125K own their homes in Canada. 
+
+As income of respondents reduces, the proportion of individuals owning homes reduces and proportion of individuals renting their homes increases. Differentiation between results of males and females will be further analyzed in the discussion section due to the significant impact of biases present in the survey and data collection. 
+
+## Household Size and home ownership
+Household Size generated some interesting results when analyzing data from the 2017 GSS. (Figure \@ref(fig:6)) shows that smaller household size (1-2 people) are equally likely to rent or own their homes. As the household size increases, proportion of people renting their homes reduces while proportion of people owning their homes increases. 
+
+(Figure \@ref(fig:6)) shows that household sizes of 6 and greater are 95% likely to own their homes. Similar to other variables, males and females follow a similar pattern when comparing household size with home ownership. 
+
+## Population Center and Home Ownership
+(Figure \@ref(fig:7)) looks at geographical location of respondents in Canada - whether they reside in urban or rural areas. (Figure \@ref(fig:7)) shows that in larger urban population centers, Candians are equally likely to own or rent their homes. Contrastingly, in rural areas and small population centers, respondents are more likely to own their homes with a very small proportion of the population renting the homes they live in. 
+
+Similar to the other variables considered in this paper, patterns for males and female remain identical and it is evident that gender plays no role in Canadians choosing to rent or purchase their homes. 
+
+# Discussion
+## Marital Status and home ownership
+The relationship between marital status and home ownership, discussed in the results section, can be attributed to a multitude of factors. The results show that married males and females are most likely to own their homes as opposed to rent them. I believe this is because married people have larger disposable incomes due to the presence of 2 earning members contributing to savings. In addition, as people get married there seems to be more stability in their life and greater consistency in their geographical location and therefore, purchasing a home may seem like a more viable and desirable option. 
+
+The results also show that single males and females are equally likely to own or rent their homes. This result can also be attributed to a multitude of factors. Single people may be younger and hence, may not be able to afford a home or have enough stability in their life to warrant purchasing a home. In addition, single people may also own the home they are living in if they are still living with their parents, which is a likely option as the survey includes respondents who are under the age of 18. 
+
+Finally, separated males and females are least likely to own their homes. This could be because after separation males and females may choose to move away from the city they were living in, potentially to get a fresh start. Due to this instability and fluidity of location, it is likely that separated males and females may choose to rent their homes until they are ready to settle down again. 
+
+## Age and home ownership
+The results highlighted that older age groups were most likely to own their homes and least likely to rent their homes. This relationship can be attributed to the fact that older people are likely to have higher incomes, having been in the workforce for longer, as a result they may have the necessary funds to purchase a home. In addition, the age group in question is 60-75, this is the retirement years and males and females may choose to purchase homes as their main financial liabilities and responsibilities are likely to be over. 
+
+The results show that as age reduces, likelihood of owning homes reduces and renting homes increases. This can be attributed to the fact that younger people are likely to have lower disposable incomes as a result of being new in the workforce. As a result, they may not have the necessary income and savings to afford purchasing a home. In addition, younger males and females may have financial liabilities and responsibilities which may hinder their ability to purchase a home. 
+
+Finally, the age group containing individuals under the age of 20 had a 100% home ownership result. This is likely to be because those under 20 are probably still living with their parents who own their homes. 
+
+## Income and home ownership
+The results indicated that 95% of respondents earning above $125K owned their homes. This can be attributed to their high incomes which would allow them to purchase homes. Additionally, higher incomes could allow them to be eligible for better mortgages with better interest rates which would make home ownership more desirable. 
+
+Lower income levels are equally likely to own or rent their homes. This could be because lower income indicates being new in the workforce. As a result, males and females may not have the necessary disposable income to afford purchasing a home. In addition, those with lower incomes may have purchased their homes however, their homes may be smaller and cheaper allowing males and females to afford them. 
+
+However, results in this section are heavily biased due to the inherent limitations in the dataset and chosen sample. A large proportion of respondents were females and there was minimal male representation in the dataset. 
+
+## Household Size and Home Ownership
+The results indicate that smaller household sizes, 4 or less, are equally likely to own or rent their homes. This could be because individuals are purchasing homes to get rid of the financial burden of paying rent every month which can hamper any family planning. However, at the same time those renting may be choosing to do so in order to save money for future financial responsibilities - further education, kids education, etc. 
+
+The results also indicate that large household sizes, 6 or more members, are more likely to own their homes as opposed to rent them. This could be because large household size means more financial liabilities due to greater number of kids. As a result, parents may choose to purchase homes to reduce rental financial liabilities allowing them to save for their future expenditure. However, if larger household size is as a result of people living in joint families with a large number of earning members, increased home ownership can be attributed to larger disposable income making purchasing a home more affordable. 
+
+## Population Center and Home Ownership
+The results indicate that individuals living in larger urban population centers are equally likely to own or rent their homes. Those choosing to rent could be doing so because of exponentially higher purchase prices of homes in larger urban areas. While those choosing to purchase their homes could be because of rapidly increasing rental prices of homes in larger urban areas. 
+
+On the other hand, results showed that individuals living in rural areas and small population centers are more likely to own their homes as opposed to rent their homes. This can be attributed to the significantly lower purchase prices of homes in rural areas increasing their affordibility and desirability. Subsequently, in rural areas the norm is to continue living in parents homes which could be a factor causing the presence of significantly higher home ownership visible in the results in rural areas and small population centers. 
+
+\newpage
+# Figures
+```{r 3, echo=FALSE, fig.cap="A graph showing relationship between marital status and home ownership/rental", message=FALSE, warning=FALSE}
+
+data %>%
+  ggplot(mapping = aes(x = marital_status, fill = own_rent)) +
+  geom_bar() +
+  ggtitle("Marital status and home ownership") + 
+  xlab("Marital Status") + ylab("Number of Respondents") + labs(fill = "Own/Rent") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  coord_flip() +
+  theme_minimal() +
+  facet_wrap(vars(sex))
+```
+
+```{r 4, echo=FALSE, fig.cap="A graph showing relationship between age and home ownership/rental", message=FALSE, warning=FALSE}
+
+data %>%
+  ggplot(mapping = aes(x = age_group, fill = own_rent)) +
+  geom_bar() +
+  ggtitle("Age and Home ownership") + 
+  xlab("Age Group") + ylab("Number of Respondents") + labs(fill = "Own/Rent") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  coord_flip() +
+  theme_minimal() +
+  facet_wrap(vars(sex))
+```
+
+```{r 5, echo=FALSE, fig.cap="A graph showing relationship between income and home ownership/rental", message=FALSE, warning=FALSE}
+
+data %>%
+  ggplot(mapping = aes(x = income_respondent, fill = own_rent)) +
+  geom_bar() +
+  ggtitle("Income and Home ownership") + 
+  xlab("Income") + ylab("Number of Respondents") + labs(fill = "Own/Rent") +
+  scale_x_discrete(limits=c("<25k", "<50k", "<75k", "<100k", "<125k", ">=125k")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme() + # add labels
+  facet_wrap(vars(sex))
+```
+
+```{r 6, echo=FALSE, fig.cap="A graph showing relationship between household size and home ownership/rental", message=FALSE, warning=FALSE}
+
+data %>%
+  ggplot(mapping = aes(x = hh_size, fill = own_rent)) +
+  geom_bar() +
+  ggtitle("Household Size and Home ownership") + 
+  xlab("Household Size") + ylab("Number of Respondents") + labs(fill = "Own/Rent") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme() + # add labels
+  facet_wrap(vars(sex))
+
+```
+
+```{r 7, echo=FALSE, fig.cap="A graph showing relationship between population center and home ownership/rental", message=FALSE, warning=FALSE}
+
+data %>%
+  ggplot(mapping = aes(x = pop_center, fill = own_rent)) +
+  geom_bar() +
+  ggtitle("Population Center and Home ownership") + 
+  xlab("Population Center") + ylab("Number of Respondents") + labs(fill = "Own/Rent") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  theme() + # add labels
+  facet_wrap(vars(sex))
+
+```
+
+\newpage
+# References
+
